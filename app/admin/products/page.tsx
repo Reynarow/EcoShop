@@ -146,13 +146,7 @@ export default function AdminProductsPage() {
   return (
     <main className="container mx-auto px-4 py-8 md:py-12 max-w-7xl">
       {/* اعلان هشدار امنیتی آزمایشی بودن پنل */}
-      <div className="mb-6 flex items-center gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-xs font-medium text-amber-600 dark:text-amber-400">
-        <ShieldAlert className="size-5 shrink-0" />
-        <p>
-          <span className="font-bold">یادداشت امنیتی:</span> این پنل مدیریت در حال حاضر نسخه اولیه جهت مدیریت کالاها است
-          و هنوز به سیستم احراز هویت متصل نشده است.
-        </p>
-      </div>
+      
 
       {/* اعلان پیام‌های موفقیت یا خطا */}
       {notification && (
