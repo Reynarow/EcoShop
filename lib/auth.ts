@@ -1,7 +1,9 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
+import { emailOTP } from "better-auth/plugins";
 import { prisma } from "./prisma";
+import { sendVerificationOtpEmail } from "./email";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -16,9 +18,16 @@ export const auth = betterAuth({
     "http://127.0.0.1:3000",
     "http://localhost:3005",
     "http://127.0.0.1:3005",
+    ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : []),
   ],
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    sendOnSignIn: true,
+    autoSignInAfterVerification: true,
   },
   user: {
     additionalFields: {
@@ -29,9 +38,22 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [nextCookies()],
+  plugins: [
+    emailOTP({
+      overrideDefaultEmailVerification: true,
+      otpLength: 6,
+      expiresIn: 300, // ۵ دقیقه اعتبار کد فعال‌سازی
+      async sendVerificationOTP({ email, otp, type }) {
+        await sendVerificationOtpEmail({
+          to: email,
+          otp,
+          type,
+        });
+      },
+    }),
+    nextCookies(),
+  ],
 });
 
 export type Session = typeof auth.$Infer.Session;
 export type User = typeof auth.$Infer.Session.user;
-

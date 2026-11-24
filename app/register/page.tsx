@@ -18,6 +18,7 @@ import {
 
 import { authClient } from "@/lib/auth-client";
 import { registerSchema } from "@/lib/validations/auth";
+import OtpVerificationForm from "@/components/auth/otp-verification-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +35,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const [step, setStep] = useState<"register" | "verify">("register");
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string[] }>({});
   const [serverError, setServerError] = useState<string | null>(null);
@@ -86,11 +88,8 @@ export default function RegisterPage() {
       }
 
       if (data) {
-        setSuccessMessage("حساب کاربری شما با موفقیت ایجاد شد! در حال انتقال به فروشگاه...");
-        setTimeout(() => {
-          router.push("/");
-          router.refresh();
-        }, 1500);
+        setIsLoading(false);
+        setStep("verify");
       }
     } catch (err) {
       console.error("Registration error:", err);
@@ -117,13 +116,31 @@ export default function RegisterPage() {
 
         <Card className="rounded-2xl border-border/70 shadow-lg shadow-black/5 backdrop-blur-xl">
           <CardHeader className="space-y-1 pb-4 text-center">
-            <CardTitle className="text-xl font-bold">ایجاد حساب کاربری</CardTitle>
+            <CardTitle className="text-xl font-bold">
+              {step === "verify" ? "تایید و فعال‌سازی حساب" : "ایجاد حساب کاربری"}
+            </CardTitle>
             <CardDescription className="text-xs text-muted-foreground">
-              اطلاعات خود را وارد نمایید تا حساب شما ساخته شود
+              {step === "verify"
+                ? "کد ۶ رقمی ارسال شده به ایمیل خود را وارد نمایید"
+                : "اطلاعات خود را وارد نمایید تا حساب شما ساخته شود"}
             </CardDescription>
           </CardHeader>
 
           <CardContent>
+            {step === "verify" ? (
+              <OtpVerificationForm
+                email={email.trim()}
+                mode="email-verification"
+                onSuccess={() => {
+                  setTimeout(() => {
+                    router.push("/");
+                    router.refresh();
+                  }, 1000);
+                }}
+                onBack={() => setStep("register")}
+              />
+            ) : (
+              <>
             {/* پیام موفقیت */}
             {successMessage && (
               <div className="mb-4 flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs font-semibold text-emerald-600 dark:text-emerald-400 animate-in fade-in">
@@ -284,6 +301,8 @@ export default function RegisterPage() {
                 <ArrowRight className="size-3" />
               </Link>
             </div>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
