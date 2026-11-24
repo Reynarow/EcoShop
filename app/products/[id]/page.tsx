@@ -16,6 +16,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/utils";
 import AddToCartButton from "@/components/cart/add-to-cart-button";
 import ProductCard from "@/components/products/product-card";
+import ProductReviews, { type ProductReviewItem } from "@/components/products/product-reviews";
 
 type ProductPageProps = {
   params: Promise<{ id: string }>;
@@ -78,7 +79,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     notFound();
   }
 
-  const [product, relatedProducts] = await Promise.all([
+  const [product, relatedProducts, rawReviews] = await Promise.all([
     prisma.product.findUnique({
       where: { id: productId },
     }),
@@ -87,11 +88,40 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       take: 4,
       orderBy: { createdAt: "desc" },
     }),
+    prisma.review.findMany({
+      where: { productId },
+      include: {
+        user: {
+          select: { id: true, name: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
 
   if (!product) {
     notFound();
   }
+
+  const serializedReviews: ProductReviewItem[] = rawReviews.map((r) => ({
+    id: r.id,
+    productId: r.productId,
+    userId: r.userId,
+    rating: r.rating,
+    comment: r.comment,
+    createdAt: r.createdAt.toISOString(),
+    user: r.user,
+  }));
+
+  const totalReviews = serializedReviews.length;
+  const averageRating =
+    totalReviews > 0
+      ? Number(
+          (
+            serializedReviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
+          ).toFixed(1)
+        )
+      : 0;
 
   return (
     <main className="container mx-auto px-4 py-8 md:py-12 max-w-6xl space-y-12">
@@ -158,11 +188,18 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 شناسه کالا: <span className="font-mono text-foreground font-semibold" dir="ltr">DKP-{product.id}</span>
               </span>
 
-              <div className="flex items-center gap-1 text-amber-500 mr-auto font-bold">
+              <a
+                href="#reviews"
+                className="flex items-center gap-1 text-amber-500 mr-auto font-bold hover:opacity-80 transition-opacity"
+              >
                 <Star className="size-4 fill-amber-400 text-amber-400" />
-                <span>۴.۸</span>
-                <span className="text-muted-foreground font-normal text-[11px]">(۴۲ دیدگاه خریداران)</span>
-              </div>
+                <span>
+                  {totalReviews > 0 ? averageRating.toLocaleString("fa-IR") : "جدید"}
+                </span>
+                <span className="text-muted-foreground font-normal text-[11px]">
+                  ({totalReviews.toLocaleString("fa-IR")} دیدگاه خریداران)
+                </span>
+              </a>
             </div>
 
             <h1 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl leading-snug">
@@ -253,6 +290,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           </div>
         </div>
       </div>
+
+      {/* بخش دیدگاه‌ها و امتیازات کاربران */}
+      <ProductReviews productId={product.id} initialReviews={serializedReviews} />
 
       {/* بخش محصولات مرتبط و مشابه */}
       {relatedProducts.length > 0 && (

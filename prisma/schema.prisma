@@ -17,6 +17,7 @@ model Product {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   orderItems  OrderItem[]
+  reviews     Review[]
 }
 
 model User {
@@ -31,6 +32,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   orders        Order[]
+  reviews       Review[]
 
   @@map("user")
 }
@@ -121,6 +123,22 @@ model OrderItem {
   @@index([orderId])
   @@index([productId])
   @@map("order_item")
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  userId    String
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([userId])
+  @@map("review")
 }
 
 
