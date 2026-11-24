@@ -11,7 +11,8 @@ import {
   Loader2,
   UserPlus,
   Package,
-  ClipboardList
+  ClipboardList,
+  TrendingUp
 } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
@@ -103,6 +104,14 @@ export default function UserMenu({ isMobile = false, onCloseMobileMenu }: UserMe
             {/* نمایش لینک مدیریت فقط برای کاربران با نقش ADMIN */}
             {session.user.role === "ADMIN" && (
               <>
+                <Link
+                  href="/admin"
+                  onClick={onCloseMobileMenu}
+                  className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-medium text-primary hover:bg-primary/10"
+                >
+                  <TrendingUp className="size-4 text-primary" />
+                  <span>داشبورد و آمار</span>
+                </Link>
                 <Link
                   href="/admin/orders"
                   onClick={onCloseMobileMenu}
@@ -218,6 +227,15 @@ export default function UserMenu({ isMobile = false, onCloseMobileMenu }: UserMe
             {session.user.role === "ADMIN" && (
               <>
                 <div className="my-1.5 h-px bg-border/60" />
+                <Link
+                  href="/admin"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-primary transition-colors hover:bg-primary/10"
+                  role="menuitem"
+                >
+                  <TrendingUp className="size-4 text-primary" />
+                  <span>داشبورد و آمار</span>
+                </Link>
                 <Link
                   href="/admin/orders"
                   onClick={() => setIsOpen(false)}

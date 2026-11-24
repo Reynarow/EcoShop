@@ -185,16 +185,25 @@ export default function AdminProductsPage() {
       {/* تب‌های جابجایی بین بخش‌های پنل مدیریت */}
       <div className="flex items-center gap-2 border-b border-border/60 pb-3 mb-6">
         <Link
-          href="/admin/products"
-          className="rounded-xl bg-primary/10 px-4 py-2 text-xs font-bold text-primary"
+          href="/admin"
+          className="rounded-xl px-4 py-2 text-xs font-bold text-muted-foreground hover:bg-muted transition-colors flex items-center gap-1.5"
         >
-          مدیریت محصولات
+          <TrendingUp className="size-3.5" />
+          <span>داشبورد و آمار</span>
+        </Link>
+        <Link
+          href="/admin/products"
+          className="rounded-xl bg-primary/10 px-4 py-2 text-xs font-bold text-primary flex items-center gap-1.5"
+        >
+          <Package className="size-3.5" />
+          <span>مدیریت محصولات</span>
         </Link>
         <Link
           href="/admin/orders"
-          className="rounded-xl px-4 py-2 text-xs font-bold text-muted-foreground hover:bg-muted transition-colors"
+          className="rounded-xl px-4 py-2 text-xs font-bold text-muted-foreground hover:bg-muted transition-colors flex items-center gap-1.5"
         >
-          مدیریت سفارشات
+          <Layers className="size-3.5" />
+          <span>مدیریت سفارشات</span>
         </Link>
       </div>
 
